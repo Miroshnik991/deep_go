@@ -31,7 +31,7 @@ func (q *CircularQueue) Push(value int) bool {
 		q.head, q.tail = 0, 0
 		return true
 	}
-	if q.tail+1 == len(q.values) {
+	if q.reachedTheEnd(q.tail) {
 		q.tail = 0
 	} else {
 		q.tail++
@@ -44,11 +44,10 @@ func (q *CircularQueue) Pop() bool {
 	if q.Empty() {
 		return false
 	}
-	if q.head == q.tail {
-		q.head, q.tail = -1, -1
-		return true
+	if q.lastElement() {
+		q.resetPointers()
 	}
-	if q.head+1 == len(q.values) {
+	if q.reachedTheEnd(q.head) {
 		q.head = 0
 		return true
 	}
@@ -76,6 +75,24 @@ func (q *CircularQueue) Empty() bool {
 
 func (q *CircularQueue) Full() bool {
 	if (q.head == 0 && q.tail == len(q.values)-1) || (q.head == q.tail+1) {
+		return true
+	}
+	return false
+}
+
+func (q *CircularQueue) lastElement() bool {
+	if q.head == q.tail {
+		return true
+	}
+	return false
+}
+
+func (q *CircularQueue) resetPointers() {
+	q.head, q.tail = -1, -1
+}
+
+func (q *CircularQueue) reachedTheEnd(index int) bool {
+	if index+1 == len(q.values) {
 		return true
 	}
 	return false
