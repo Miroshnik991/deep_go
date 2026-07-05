@@ -11,35 +11,74 @@ import (
 
 type CircularQueue struct {
 	values []int
-	// need to implement
+	head   int
+	tail   int
 }
 
 func NewCircularQueue(size int) CircularQueue {
-	return CircularQueue{} // need to implement
+	return CircularQueue{
+		values: make([]int, size),
+		head:   -1,
+		tail:   -1,
+	}
 }
 
 func (q *CircularQueue) Push(value int) bool {
-	return false // need to implement
+	if q.Full() {
+		return false
+	} else if q.Empty() {
+		q.values[0] = value
+		q.head, q.tail = 0, 0
+		return true
+	}
+	if q.tail+1 == len(q.values) {
+		q.tail = 0
+	} else {
+		q.tail++
+	}
+	q.values[q.tail] = value
+	return true
 }
 
 func (q *CircularQueue) Pop() bool {
-	return false // need to implement
+	if q.Empty() {
+		return false
+	}
+	if q.head == q.tail {
+		q.head, q.tail = -1, -1
+		return true
+	}
+	if q.head+1 == len(q.values) {
+		q.head = 0
+		return true
+	}
+	q.head++
+	return true
 }
 
 func (q *CircularQueue) Front() int {
-	return -1 // need to implement
+	if q.Empty() {
+		return -1
+	}
+	return q.values[q.head]
 }
 
 func (q *CircularQueue) Back() int {
-	return -1 // need to implement
+	if q.Empty() {
+		return -1
+	}
+	return q.values[q.tail]
 }
 
 func (q *CircularQueue) Empty() bool {
-	return false // need to implement
+	return q.head == -1 && q.tail == -1
 }
 
 func (q *CircularQueue) Full() bool {
-	return false // need to implement
+	if (q.head == 0 && q.tail == len(q.values)-1) || (q.head == q.tail+1) {
+		return true
+	}
+	return false
 }
 
 func TestCircularQueue(t *testing.T) {
