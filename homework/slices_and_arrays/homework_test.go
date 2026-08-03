@@ -13,12 +13,16 @@ type CircularQueue struct {
 	values []int
 	head   int
 	tail   int
+	count  int
 }
 
-func NewCircularQueue(size int) CircularQueue {
-	return CircularQueue{
+func NewCircularQueue(size int) *CircularQueue {
+	if size <= 0 {
+		panic("queue size must be greater than zero")
+	}
+
+	return &CircularQueue{
 		values: make([]int, size),
-		head:   -1,
 		tail:   -1,
 	}
 }
@@ -26,17 +30,10 @@ func NewCircularQueue(size int) CircularQueue {
 func (q *CircularQueue) Push(value int) bool {
 	if q.Full() {
 		return false
-	} else if q.Empty() {
-		q.values[0] = value
-		q.head, q.tail = 0, 0
-		return true
 	}
-	if q.reachedTheEnd(q.tail) {
-		q.tail = 0
-	} else {
-		q.tail++
-	}
+	q.tail = q.nextIndex(q.tail)
 	q.values[q.tail] = value
+	q.count++
 	return true
 }
 
@@ -44,14 +41,8 @@ func (q *CircularQueue) Pop() bool {
 	if q.Empty() {
 		return false
 	}
-	if q.lastElement() {
-		q.resetPointers()
-	}
-	if q.reachedTheEnd(q.head) {
-		q.head = 0
-		return true
-	}
-	q.head++
+	q.head = q.nextIndex(q.head)
+	q.count--
 	return true
 }
 
@@ -70,32 +61,15 @@ func (q *CircularQueue) Back() int {
 }
 
 func (q *CircularQueue) Empty() bool {
-	return q.head == -1 && q.tail == -1
+	return q.count == 0
 }
 
 func (q *CircularQueue) Full() bool {
-	if (q.head == 0 && q.tail == len(q.values)-1) || (q.head == q.tail+1) {
-		return true
-	}
-	return false
+	return q.count == len(q.values)
 }
 
-func (q *CircularQueue) lastElement() bool {
-	if q.head == q.tail {
-		return true
-	}
-	return false
-}
-
-func (q *CircularQueue) resetPointers() {
-	q.head, q.tail = -1, -1
-}
-
-func (q *CircularQueue) reachedTheEnd(index int) bool {
-	if index+1 == len(q.values) {
-		return true
-	}
-	return false
+func (q *CircularQueue) nextIndex(idx int) int {
+	return (idx + 1) % len(q.values)
 }
 
 func TestCircularQueue(t *testing.T) {
